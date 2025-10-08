@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import EventOccurs from "../middleware/eventTrack.js";
 import User from "../models/auth.model.js";
 
 const register = async (req, res) => {
@@ -16,7 +17,7 @@ const register = async (req, res) => {
 
         const newUser = new User({ username, email, password: hashpass });
         const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: "1h" });
-
+        EventOccurs("new user added", newUser._id, { ip: req.ip }, new Date());
         await newUser.save();
         res.status(201).json({ message: "User registered successfully", token, user: { id: newUser._id, email: newUser.email } });
     } catch (error) {
